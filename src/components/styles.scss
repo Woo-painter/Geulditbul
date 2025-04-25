@@ -1,6 +1,7 @@
 .tiptap {
   border: 1px black solid;
-  border-radius: 7px;
+  border-bottom: none;
+  border-radius: 7px 7px 0 0;
   overflow-y: auto;
   height: 80vh; /* 고정 높이 */
   padding: 1rem;

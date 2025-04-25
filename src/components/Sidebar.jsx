@@ -7,7 +7,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
 
   return (
-    <aside className="w-40 h-screen border-r border-gray-300">
+    <aside className="w-40  min-h-screen border-r border-gray-300">
       <Logo />
       <SideItems />
       <button className="w-39 cursor-pointer fixed bottom-0 left-0 bg-white" onClick={() => navigate("/Login")}>

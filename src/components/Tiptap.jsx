@@ -15,8 +15,8 @@ const MenuBar = () => {
   }
 
   return (
-    <div className="control-group w-100">
-      <div className="button-group flex flex-wrap">
+    <div className="control-group w-full flex justify-evenly">
+      <div>
         <button
           onClick={() => editor.chain().focus().toggleBold().run()}
           disabled={!editor.can().chain().focus().toggleBold().run()}
@@ -62,6 +62,8 @@ const MenuBar = () => {
             <path d="M80-400v-80h800v80H80Zm340-160v-120H200v-120h560v120H540v120H420Zm0 400v-160h120v160H420Z" />
           </svg>
         </button>
+      </div>
+      <div>
         <button
           onClick={() =>
             editor.chain().focus().toggleHeading({ level: 1 }).run()
@@ -116,7 +118,8 @@ const MenuBar = () => {
             <path d="M120-280v-400h80v160h160v-160h80v400h-80v-160H200v160h-80Zm400 0v-80h240v-80H600v-80h160v-80H520v-80h240q33 0 56.5 23.5T840-600v240q0 33-23.5 56.5T760-280H520Z" />
           </svg>
         </button>
-
+      </div>
+      <div>
         <button
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={editor.isActive("bulletList") ? "is-active" : ""}
@@ -201,25 +204,25 @@ const FooterBar = () => {
     const text = editor.getText();
     console.log(html);
     console.log(text);
-
   }
 
   return (
-    <div className="flex justify-end">
+    <div className="flex justify-end border-1 border-[#9BA5B7]">
       <button
-        className="cursor-pointer flex gap-2 mt-2"
+        className="cursor-pointer flex gap-1 bg-[#545F71] px-2 py-1"
         onClick={() => saveDoc()}
       >
+        <span className="text-white text-1">SAVE</span>
         <svg
+          className="m-auto"
           xmlns="http://www.w3.org/2000/svg"
-          height="24px"
+          height="18px"
           viewBox="0 -960 960 960"
           width="24px"
-          fill="#1f1f1f"
+          fill="#ffffff"
         >
           <path d="m720-120 160-160-56-56-64 64v-167h-80v167l-64-64-56 56 160 160ZM560 0v-80h320V0H560ZM240-160q-33 0-56.5-23.5T160-240v-560q0-33 23.5-56.5T240-880h280l240 240v121h-80v-81H480v-200H240v560h240v80H240Zm0-80v-560 560Z" />
         </svg>
-        <span>문서 저장</span>
       </button>
     </div>
   );
@@ -229,6 +232,11 @@ export default function Tiptap() {
   return (
     <>
       <div className="flex flex-col w-200 prose">
+        <input
+          className="text-2xl font-bold border-b p-2 m-1"
+          type="text"
+          placeholder="TITLE"
+        />
         <EditorProvider
           slotBefore={<MenuBar />}
           slotAfter={<FooterBar />}

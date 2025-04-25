@@ -1,36 +1,28 @@
+import SideItem from "./SideItem";
+
 export default function SideItems() {
   return (
-    <div className="flex flex-col p-3 py-1">
-      <div className="text-[9px]">서비스</div>
+    <div className="flex flex-col py-1">
+      <div className="text-[9px] px-3">서비스</div>
       <div>
         <ul>
-          <li className="p-1">
-            <a className="flex items-center" href="">
-              <div className="w-6 h-6 inline-block">
-                <img className="object-cover" src="spellChecker.png" alt="" />
-              </div>
-              <span className="text-[11px]">맞춤법 검사</span>
-            </a>
+          <li className="">
+            <SideItem image={"spellChecker.png"} text={`맞춤법검사`}/>
           </li>
-          <li className="p-1">
-            <a className="flex items-center" href="">
-              <div className="w-6 h-6 inline-block">
-                <img
-                  className="object-cover"
-                  src="synonymRecommend.png"
-                  alt=""
-                />
-              </div>
-              <span className="text-[11px]">유의어 추천</span>
-            </a>
+          <li className="">
+            <SideItem image={"synonymRecommend.png"} text={`유의어추천`}/>
           </li>
-          <li className="p-1">
-            <a className="flex items-center" href="">
-              <div className="w-6 h-6 inline-block">
-                <img className="object-cover" src="recommend.png" alt="" />
-              </div>
-              <span className="text-[11px]">맞춤법 검사</span>
-            </a>
+          <li className="">
+            <SideItem image={"recommend.png"} text={'참고문헌추천'}/>
+              
+          </li>
+        </ul>
+      </div>
+      <div className="text-[9px] px-3">글 목록</div>
+      <div>
+        <ul>
+          <li className="">
+            <SideItem image={"text.png"} text={"글 1"}/>
           </li>
         </ul>
       </div>
