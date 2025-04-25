@@ -1,5 +1,5 @@
 import Logo from "./Logo";
-import SideItems from "./Sideitems";
+import SideItems from "./SideItems";
 import { useNavigate } from "react-router-dom";
 
 
