@@ -259,7 +259,7 @@ export default function Tiptap() {
                 start: from,
                 end: to,
               });
-              const baseURL = "http://127.0.0.1:8000/model/WordRec";
+              const baseURL = "https://geulditbul-backend.onrender.com/model/WordRec";
               const fullURL = `${baseURL}?${params.toString()}`;
               axios
                 .get(fullURL)
