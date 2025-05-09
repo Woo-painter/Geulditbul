@@ -1,15 +1,19 @@
 import "./styles.scss";
 
+import { useEffect, useRef, useState } from "react";
 import { Color } from "@tiptap/extension-color";
 import ListItem from "@tiptap/extension-list-item";
 import TextStyle from "@tiptap/extension-text-style";
-import { EditorProvider, useCurrentEditor } from "@tiptap/react";
+import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
 import React from "react";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { setWord } from "../redux/synonym";
+import { setLoadingSynonym } from "../redux/onoff";
 
-const MenuBar = () => {
-  const { editor } = useCurrentEditor();
-
+const MenuBar = ({ editor }) => {
   if (!editor) {
     return null;
   }
@@ -153,57 +157,12 @@ const MenuBar = () => {
   );
 };
 
-const extensions = [
-  Color.configure({ types: [TextStyle.name, ListItem.name] }),
-  TextStyle.configure({ types: [ListItem.name] }),
-  StarterKit.configure({
-    bulletList: {
-      keepMarks: true,
-      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-    },
-    orderedList: {
-      keepMarks: true,
-      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-    },
-  }),
-];
-
-const content = `
-<h2>
-  Hi there,
-</h2>
-<p>
-  this is a <em>basic</em> example of <strong>Tiptap</strong>. Sure, there are all kind of basic text styles you’d probably expect from a text editor. But wait until you see the lists:
-</p>
-<ul>
-  <li>
-    That’s a bullet list with one …
-  </li>
-  <li>
-    … or two list items.
-  </li>
-</ul>
-<p>
-  Isn’t that great? And all of that is editable. But wait, there’s more. Let’s try a code block:
-</p>
-<p>
-  I know, I know, this is impressive. It’s only the tip of the iceberg though. Give it a try and click a little bit around. Don’t forget to check the other examples too.
-</p>
-<blockquote>
-  Wow, that’s amazing. Good work, boy! 👏
-  <br />
-  — Mom
-</blockquote>
-`;
-const FooterBar = () => {
-  const { editor } = useCurrentEditor();
-  if (!editor) return;
+const FooterBar = ({ editor, title }) => {
+  if (!editor) return null;
 
   function saveDoc() {
     const html = editor.getHTML();
-    const text = editor.getText();
-    console.log(html);
-    console.log(text);
+    console.log(html, title);
   }
 
   return (
@@ -228,22 +187,117 @@ const FooterBar = () => {
   );
 };
 
+function extractSentenceFromSelection(editor) {
+  const state = editor.state;
+  const { from, to } = state.selection;
+  const fullText = editor.getText();
+
+  // 드래그한 위치를 기준으로 문장 확장
+  let sentenceStart = from;
+  while (sentenceStart > 0 && !/[.?!]/.test(fullText[sentenceStart - 1])) {
+    sentenceStart--;
+  }
+
+  let sentenceEnd = to;
+  while (
+    sentenceEnd < fullText.length &&
+    !/[.?!]/.test(fullText[sentenceEnd])
+  ) {
+    sentenceEnd++;
+  }
+  if (sentenceEnd < fullText.length) sentenceEnd++; // 마침표 포함
+  const sentence = fullText.slice(sentenceStart, sentenceEnd).trim();
+  return sentence || null;
+}
+
 export default function Tiptap() {
+  const timeoutRef = useRef(null);
+  const [title, setTitle] = useState("");
+  const dispatch = useDispatch();
+  const onoff = useSelector((state) => state.onoff.value);
+  let prevSelection = { from: null, to: null };
+  const editor = useEditor({
+    extensions: [
+      Color.configure({ types: [TextStyle.name, ListItem.name] }),
+      TextStyle.configure({ types: [ListItem.name] }),
+      StarterKit.configure({
+        bulletList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+        orderedList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+      }),
+      Placeholder.configure({
+        placeholder: "Write something …",
+        showOnlyCurrent: false,
+        showOnlyWhenEditable: true,
+      }),
+    ],
+    onSelectionUpdate({ editor }) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current); // 타이머 초기화
+      }
+      if (onoff.synonym) {
+        const { from, to } = editor.state.selection;
+        if (
+          from !== to &&
+          (from !== prevSelection.from || to !== prevSelection.to)
+        ) {
+          prevSelection = { from, to };
+          dispatch(setLoadingSynonym(true));
+          console.log("on");
+          timeoutRef.current = setTimeout(() => {
+            const selection = window.getSelection()?.toString();
+            if (selection) {
+              const sentence = extractSentenceFromSelection(editor);
+              const params = new URLSearchParams({
+                user_sentence: sentence,
+                MaskWord: selection,
+                start: from,
+                end: to,
+              });
+              const baseURL = "http://127.0.0.1:8000/model/WordRec";
+              const fullURL = `${baseURL}?${params.toString()}`;
+              axios
+                .get(fullURL)
+                .then((res) => {
+                  console.log(res.data.rec_result);
+                  dispatch(setLoadingSynonym(false));
+                  console.log("off");
+                  dispatch(setWord(res.data.rec_result));
+                })
+                .catch((err) => {
+                  dispatch(setLoadingSynonym(false));
+                  console.log("off");
+                  console.error(err);
+                });
+            }
+          }, 2000); // 1초 디바운스
+        }
+      }
+    },
+  });
+
   return (
-    <>
-      <div className="flex flex-col w-200 prose">
-        <input
-          className="text-2xl font-bold border-b p-2 m-1"
-          type="text"
-          placeholder="TITLE"
-        />
-        <EditorProvider
-          slotBefore={<MenuBar />}
-          slotAfter={<FooterBar />}
-          extensions={extensions}
-          content={content}
-        ></EditorProvider>
+    <div className="flex flex-col w-200 prose">
+      <input
+        className="text-2xl font-bold border-b p-2 m-1"
+        type="text"
+        placeholder="TITLE"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+
+      <div className="editor-container">
+        <MenuBar editor={editor} />
+        <div className="editor-content">
+          <EditorContent editor={editor} />
+        </div>
+        <FooterBar editor={editor} title={title} />
       </div>
-    </>
+    </div>
   );
 }
