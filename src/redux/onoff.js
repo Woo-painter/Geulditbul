@@ -7,6 +7,8 @@ export const onoffSlice = createSlice({
       spellChecker: false,
       synonym: false,
       loadingSynonym: false,
+      loadingRef: false,
+      loadingSpell:false,
       reference: false,
     },
   },
@@ -20,8 +22,14 @@ export const onoffSlice = createSlice({
     toggleReference: (state) => {
       state.value.reference = !state.value.reference;
     },
-    setLoadingSynonym: (state,action) => {
+    setLoadingSpell: (state, action) => {
+      state.value.loadingSpell = action.payload;
+    },
+    setLoadingSynonym: (state, action) => {
       state.value.loadingSynonym = action.payload;
+    },
+    setLoadingRef: (state, action) => {
+      state.value.loadingRef = action.payload;
     },
   },
 });
@@ -30,6 +38,8 @@ export const {
   toggleSynonym,
   toggleReference,
   setLoadingSynonym,
+  setLoadingRef,
+  setLoadingSpell
 } = onoffSlice.actions;
 
 export default onoffSlice.reducer;

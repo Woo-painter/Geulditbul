@@ -8,6 +8,12 @@
   :first-child {
     margin-top: 0;
   }
+  /* styles.css */
+  .spell-error {
+    text-decoration: underline;
+    text-decoration-color: red;
+    text-decoration-style: wavy;
+  }
 
   /* List styles */
   ul {
@@ -101,8 +107,6 @@
     border-top: 1px solid var(--gray-2);
     margin: 2rem 0;
   }
-  
-  
 }
 
 .ProseMirror > p.is-empty:first-child::before {

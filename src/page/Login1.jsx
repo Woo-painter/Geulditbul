@@ -1,15 +1,43 @@
 // pages/Login.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+const API_URL = "http://127.0.0.1:8000"; // 실제 백엔드 주소로 수정
+
+const login = async (email, password) => {
+  const params = new URLSearchParams();
+  params.append("username", email); // OAuth2PasswordRequestForm은 username 필드 사용
+  params.append("password", password);
+
+  return axios.post(`${API_URL}/auth/login`, params, {
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    withCredentials: true,
+  });
+};
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(""); // 에러 메시지
+  const navigate = useNavigate(); // 페이지 이동용
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // 로그인 로직 구현
+    try {
+      const response = await login(email, password);
+      const access_token = response.data.access_token;
+      // 토큰을 localStorage에 저장 (또는 쿠키 사용 가능)
+      sessionStorage.setItem("access_token", access_token);
+      // 로그인 성공 후 메인 페이지로 이동
+      navigate("/home");
+    } catch (err) {
+      setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+      console.error("로그인 실패", err);
+    }
   };
 
   return (
@@ -39,7 +67,6 @@ const Login = () => {
         <h2 className="text-center text-2xl font-semibold text-[#545F71]">
           로그인
         </h2>
-
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-6">
             <div>
