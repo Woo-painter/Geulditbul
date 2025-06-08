@@ -2,10 +2,10 @@ import { setRef, startCooldown } from "../redux/ref";
 import { setLoadingRef } from "../redux/onoff";
 import axiosInstance from "./axiosInstance";
 
-export function handleEditorUpdate(editor, ref, dispatch) {
+export function handleRefUpdate(editor, ref, dispatch) {
   const text = editor.getText();
   const length = text.length;
-  if (length % 300 === 0 && length !== 0 && ref.isActive === true) {
+  if (length >= 150 && length !== 0 && ref.isActive === true) {
     dispatch(startCooldown());
     dispatch(setLoadingRef(true));
     const baseURL = "http://127.0.0.1:8000/model/RefRec";

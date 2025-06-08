@@ -1,7 +1,7 @@
 // axiosInstance.js
 import axios from "axios";
 
-const API_BASE_URL = "http://0.0.0.0:8000";
+const API_BASE_URL = "http://127.0.0.1:8000";
 
 // Axios 인스턴스 생성
 const axiosInstance = axios.create({

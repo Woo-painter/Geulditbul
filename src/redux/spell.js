@@ -1,6 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = { check_result: [], original_text: "", checked_text: "" };
+const initialState = {
+  check_result: [],
+  original_text: "",
+  checked_text: "",
+  point: 0,
+};
 
 export const spellSlice = createSlice({
   name: "spell",
@@ -19,8 +24,11 @@ export const spellSlice = createSlice({
     reset: (state) => {
       state.value = initialState;
     },
+    save: (state, action) => {
+      state.value.point = action.payload.point;
+    },
   },
 });
-export const { setCheck, remove, reset } = spellSlice.actions;
+export const { setCheck, remove, reset, save } = spellSlice.actions;
 
 export default spellSlice.reducer;

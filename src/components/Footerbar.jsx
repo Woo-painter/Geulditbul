@@ -1,10 +1,11 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "./axiosInstance";
+import { fetchPosts } from "../redux/post";
 
 const FooterBar = ({ editor, title }) => {
   if (!editor) return null;
   const selectedPost = useSelector((state) => state.posts.selectedPost);
-
+  const dispatch = useDispatch();
   const updatePost = async () => {
     const content = editor.getHTML();
     try {
@@ -14,6 +15,7 @@ const FooterBar = ({ editor, title }) => {
         content,
       });
       console.log("Post updated!", res.data);
+      dispatch(fetchPosts());
     } catch (err) {
       console.error("Update failed:", err);
     }

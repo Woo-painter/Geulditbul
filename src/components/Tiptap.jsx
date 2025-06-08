@@ -15,12 +15,12 @@ import Sidebar from "../components/Sidebar";
 import SideTool from "./SideTool";
 import { resetValue } from "../redux/synonym";
 import { reset } from "../redux/spell";
-import { handleEditorUpdate } from "./Ref";
+import { handleRefUpdate } from "./Ref";
 import SpellCheck from "./SpellCheck";
 import { SpellErrorMark } from "./SpellErrorMark";
+import { setLoadingSpell } from "../redux/onoff";
 
 export default function Tiptap() {
-  const synonym = useSelector((state) => state.synonym.value);
   const synonymTimerRef = useRef(null);
   const [title, setTitle] = useState("");
   const dispatch = useDispatch();
@@ -71,12 +71,22 @@ export default function Tiptap() {
     onUpdate({ editor }) {
       dispatch(resetValue());
       if (onoff.reference) {
-        handleEditorUpdate(editor, ref, dispatch);
+        handleRefUpdate(editor, ref, dispatch);
       }
       if (onoff.spellChecker && isUserInputRef.current === false) {
         countRef.current = [];
-        dispatch(reset());
-        SpellCheck(editor, spellTimerRef, prevTextRef, dispatch);
+        // dispatch(reset());
+        const currentText = editor.getText();
+
+        if (currentText !== prevTextRef.current) {
+          prevTextRef.current = currentText;
+          dispatch(setLoadingSpell(true));
+
+          if (spellTimerRef.current) clearTimeout(spellTimerRef.current);
+          spellTimerRef.current = setTimeout(() => {
+            SpellCheck(editor, dispatch, currentText);
+          }, 1500);
+        }
       }
     },
   });
@@ -85,7 +95,16 @@ export default function Tiptap() {
       editor.commands.setContent(selectedPost.content);
       setTitle(selectedPost.title);
     }
-  }, [selectedPost]);
+    const handleKeyDown = (event) => {
+      if ([".", "?", "!"].includes(event.key)) {
+        const currentText = editor.getText();
+        console.log(1);
+        SpellCheck(editor, dispatch, currentText);
+      }
+    };
+    editor.view.dom.addEventListener("keydown", handleKeyDown);
+  }, [selectedPost, editor]);
+
   return (
     <div className="flex gap-5">
       <Sidebar />
